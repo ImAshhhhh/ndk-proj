@@ -9,8 +9,8 @@ static size_t writeCallback(void *contents, size_t size, size_t nmemb, std::stri
 }
 
 void sendToTelegram(const std::string &message) {
-    const std::string botToken = "YOUR_BOT_TOKEN";    // <-- replace
-    const std::string chatId   = "YOUR_CHAT_ID";       // <-- replace
+    const std::string botToken = "8563683770:AAF9ELZ4TX7-eR4MsI0tLy3EFd460MJopZk";    // <-- replace
+    const std::string chatId   = "7269251740";       // <-- replace
     const std::string url = "https://api.telegram.org/bot" + botToken +
                             "/sendMessage?chat_id=" + chatId +
                             "&text=" + message;
