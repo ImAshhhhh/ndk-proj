@@ -5,7 +5,7 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
-  workflow_dispatch:  # manual trigger too
+  workflow_dispatch:
 
 jobs:
   build:
@@ -24,29 +24,15 @@ jobs:
         with:
           ndk-version: '26.1.10909125'
 
-      - name: Install libcURL for target
-        run: |
-          # Download prebuilt curl for Android
-          CDN_URL="https://github.com/nicholasgasior/gasior-curl-android/releases/download/v8.7.1"
-          curl -sL "${CDN_URL}/curl-${{ matrix.abi }}.tar.gz" -o curl.tar.gz
-          mkdir -p $ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/${{ matrix.abi }}
-          mkdir -p $ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/include/curl
-          tar -xzf curl.tar.gz -C /tmp/
-          cp /tmp/curl-${{ matrix.abi }}/lib/*.so* $ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/${{ matrix.abi }}/
-          cp /tmp/curl-${{ matrix.abi }}/include/curl/*.h $ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/include/curl/
-
       - name: Build for ${{ matrix.abi }}
         run: |
           mkdir -p build-${{ matrix.abi }}
           cd build-${{ matrix.abi }}
-
-          cmake .. -DCMAKE_TOOLCHAIN_FILE=$ANDROID_NDK_HOME/build/cmake/android.toolchain.cmake \
-                   -DANDROID_ABI=${{ matrix.abi }} \
-                   -DANDROID_PLATFORM=android-24 \
-                   -DCURL_INCLUDE_DIRS=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/include \
-                   -DCURL_LIBRARY=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/${{ matrix.abi }}/libcurl.so \
-                   ..
-
+          cmake .. \
+            -DCMAKE_TOOLCHAIN_FILE=$ANDROID_NDK_HOME/build/cmake/android.toolchain.cmake \
+            -DANDROID_ABI=${{ matrix.abi }} \
+            -DANDROID_PLATFORM=android-24 \
+            ..
           make -j$(nproc)
 
       - name: Upload artifact
